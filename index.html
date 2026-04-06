@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="地域コミュニティの「ちょっとしった世話」を匿名でやり取り">
+    <title>hood-gift - 地域のちょっとした世話</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+</head>
+<body>
+    <header role="banner" aria-label="アプリヘッダー">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 aria-label="hood-gift">🎁 hood-gift</h1>
+                <p>地域コミュニティの「ちょっとした世話」を匿名でやり取り</p>
+            </div>
+            <div class="points-section">
+                <div class="points-display" id="pointsDisplay" aria-label="ポイント残高">
+                    <span class="points-icon">💎</span>
+                    <span class="points-value" id="pointsValue">0</span>
+                    <span class="points-label">pt</span>
+                </div>
+                <div class="points-buttons">
+                    <button class="btn-premium" id="premiumBtn" aria-label="プレミアムプラン">
+                        ⭐ プレミアム
+                    </button>
+                    <button class="btn-sponsor" id="sponsorBtn" aria-label="スポンサー登録">
+                        👑 スポンサー
+                    </button>
+                </div>
+                <div class="sponsor-badge" id="sponsorBadge" style="display: none;">
+                    <span>👑 スポンサー会員</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main role="main" aria-label="メインコンテンツ">
+        <section class="filters" aria-label="フィルターオプション">
+            <div class="type-filters" role="group" aria-label="投稿タイプで絞り込み">
+                <button class="filter-btn active" data-type="all" aria-pressed="true">すべて</button>
+                <button class="filter-btn" data-type="give" aria-pressed="false">あげます</button>
+                <button class="filter-btn" data-type="request" aria-pressed="false">ください</button>
+                <button class="filter-btn" data-type="exchange" aria-pressed="false">交換</button>
+            </div>
+            <div class="category-filters" role="group" aria-label="カテゴリーで絞り込み">
+                <button class="cat-btn active" data-cat="all" aria-pressed="true">すべて</button>
+                <button class="cat-btn" data-cat="food" aria-pressed="false">🍎 フード</button>
+                <button class="cat-btn" data-cat="items" aria-pressed="false">📦 物品</button>
+                <button class="cat-btn" data-cat="help" aria-pressed="false">🤝 手伝い</button>
+                <button class="cat-btn" data-cat="info" aria-pressed="false">💡 情報</button>
+            </div>
+        </section>
+
+        <button class="fab" id="newPostBtn" aria-label="新規投稿を作成" title="新規投稿">＋</button>
+
+        <section class="posts" id="postsList" aria-label="投稿一覧" role="region"></section>
+    </main>
+
+    <!-- New Post Modal -->
+    <div class="modal" id="postModal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+        <div class="modal-content" role="document">
+            <h2 id="modal-title">新規投稿</h2>
+            <form id="postForm" aria-label="新規投稿フォーム">
+                <div class="form-group">
+                    <label for="post-type">タイプ</label>
+                    <select id="post-type" name="type" required>
+                        <option value="give">あげます</option>
+                        <option value="request">ください</option>
+                        <option value="exchange">交換</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-category">カテゴリ</label>
+                    <select id="post-category" name="category" required>
+                        <option value="food">🍎 フード</option>
+                        <option value="items">📦 物品</option>
+                        <option value="help">🤝 手伝い</option>
+                        <option value="info">💡 情報</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-title">タイトル</label>
+                    <input type="text" id="post-title" name="title" placeholder="例：余ったトマトあげます" required>
+                </div>
+                <div class="form-group">
+                    <label for="post-description">詳細</label>
+                    <textarea id="post-description" name="description" rows="4" placeholder="詳細を入力してください" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="post-location">場所（駅名・エリア）</label>
+                    <input type="text" id="post-location" name="location" placeholder="例：渋谷駅周辺" required>
+                </div>
+                <div class="form-group priority-toggle">
+                    <label class="priority-label">
+                        <input type="checkbox" id="priorityPost" name="priority">
+                        <span class="toggle-slider"></span>
+                        <span class="priority-text">✨ 優先表示する (50pt消費)</span>
+                    </label>
+                    <p class="priority-desc">優先表示にすると投稿がリストの上部に表示されます</p>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelPost">キャンセル</button>
+                    <button type="submit" class="btn-submit">投稿する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="modal" id="chatModal" role="dialog" aria-labelledby="chat-title" aria-modal="true">
+        <div class="modal-content chat-modal" role="document">
+            <div class="chat-header">
+                <h3 id="chat-title">やり取り</h3>
+                <button class="close-btn" id="closeChat" aria-label="閉じる">&times;</button>
+            </div>
+            <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="メッセージ履歴"></div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="メッセージを入力..." aria-label="メッセージを入力">
+                <button id="sendMessage" aria-label="送信">送信</button>
+            </div>
+            <div class="chat-actions">
+                <button class="btn-complete" id="completeBtn" aria-label="取引完了">
+                    ✅ 取引完了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tip Modal -->
+    <div class="modal" id="tipModal" role="dialog" aria-labelledby="tip-title" aria-modal="true">
+        <div class="modal-content tip-modal" role="document">
+            <h3 id="tip-title">💰 投げ銭</h3>
+            <p class="tip-desc">この投稿が気に入ったら投げ銭してみませんか？</p>
+            <div class="tip-amounts">
+                <button class="tip-btn" data-amount="100" data-points="10">
+                    <span class="tip-yen">¥100</span>
+                    <span class="tip-points">+10pt</span>
+                </button>
+                <button class="tip-btn" data-amount="300" data-points="30">
+                    <span class="tip-yen">¥300</span>
+                    <span class="tip-points">+30pt</span>
+                </button>
